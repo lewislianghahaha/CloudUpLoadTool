@@ -27,10 +27,10 @@ namespace CloudUpLoadTool
 
             Dictionary<string, string> param = new Dictionary<string, string>();
 
-            string delivery = @"{<M>,oDeliveryDetails:[<S>]}";
+            var delivery = @"{<M>,oDeliveryDetails:[<S>]}";
 
-            string m = @" 'cOrderNo': '<udh>','cOutSysKey':'<dh>','dCreated':'<rq>','dSendDate' :'<fhrq>','cReceiveAddress': '<shaddr>',
-                          'cReceiver': '<shr>','cReceiveMobile': '<shtel>','oShippingMemo': {'remark': '<memo>'}";
+            var m = @" 'cOrderNo': '<udh>','cOutSysKey':'<dh>','dCreated':'<rq>','dSendDate' :'<fhrq>','cReceiveAddress': '<shaddr>',
+                       'cReceiver': '<shr>','cReceiveMobile': '<shtel>','oShippingMemo': {'remark': '<dh> <memo>'}";
             try
             {
                 date = (DateTime)data.Tables[0].Rows[0]["rq"];
@@ -45,7 +45,6 @@ namespace CloudUpLoadTool
             catch
             {
             }
-
             m = m.Replace("<rq>", date.ToString("yyyy-MM-dd hh:mm:ss"));
             m = m.Replace("<fhrq>", date1.ToString("yyyy-MM-dd hh:mm:ss"));
             for (var i = 0; i < data.Tables[0].Columns.Count; i++)
@@ -64,7 +63,7 @@ namespace CloudUpLoadTool
             var s1 = s;
             var S = "";
 
-            for (int i = 0; i < datas.Tables[0].Rows.Count; i++)
+            for (var i = 0; i < datas.Tables[0].Rows.Count; i++)
             {
                 s1 = s;
                 s1 = s1.Replace("<uid>", datas.Tables[0].Rows[i]["idkey"].ToString().Trim());
@@ -82,7 +81,7 @@ namespace CloudUpLoadTool
 
 
             var fhdh = "";
-            var xmldoc = new XmlDocument();
+            XmlDocument xmldoc = new XmlDocument();
             xmldoc.LoadXml(ret);
             if (fcydata.FcyXml.GetNodeVal(xmldoc.DocumentElement, "code") == "200")
             {
@@ -93,9 +92,8 @@ namespace CloudUpLoadTool
 
             //hydh,hysj,hytel,hyrq,hyqd,hymz,hydz,hyyf,hyjs,
             param = new Dictionary<string, string>();
-            var json = @"{deliveryNo: '" + fhdh + "',outSysNo:'<dh>',deliveryDefine:{define1:'<hyjs>',define2:'<hymz>',define3:'<hyyf>'," +
-                       "define4:'<hydz>',define5:'<hydh>',define6:'<hysj>',define7:'<hytel>',define8:'<hyrq>'}}";
-            for (int i = 0; i < data.Tables[0].Columns.Count; i++)
+            var json = "{deliveryNo: '" + fhdh + "',outSysNo:'<dh>',deliveryDefine:{define1:'<hyjs>',define2:'<hymz>',define3:'<hyyf>',define4:'<hydz>',define5:'<hydh>',define6:'<hysj>',define7:'<hytel>',define8:'<hyrq>'}}";
+            for (var i = 0; i < data.Tables[0].Columns.Count; i++)
             {
                 json = json.Replace("<" + data.Tables[0].Columns[i].ColumnName + ">", data.Tables[0].Rows[0][i].ToString().Trim());
             }
