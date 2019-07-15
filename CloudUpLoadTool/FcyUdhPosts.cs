@@ -30,7 +30,7 @@ namespace CloudUpLoadTool
             var delivery = @"{<M>,oDeliveryDetails:[<S>]}";
 
             var m = @" 'cOrderNo': '<udh>','cOutSysKey':'<dh>','dCreated':'<rq>','dSendDate' :'<fhrq>','cReceiveAddress': '<shaddr>',
-                       'cReceiver': '<shr>','cReceiveMobile': '<shtel>','oShippingMemo': {'remark': '<dh> <memo>'}";
+                       'cReceiver': '<shr>','cReceiveMobile': '<shtel>','oShippingMemo': {'cRemark': '<memo>'}";
             try
             {
                 date = (DateTime)data.Tables[0].Rows[0]["rq"];
