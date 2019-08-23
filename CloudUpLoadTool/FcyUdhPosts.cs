@@ -106,6 +106,85 @@ namespace CloudUpLoadTool
         }
 
         /// <summary>
+        /// 收款退款单上传使用（注:金额为正的就是上传至U订货的支付单  若为负的就是上传至U订货的退款单）
+        /// </summary>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public static string SKUpload(DataRow row)
+        {
+            var ret = "";
+            fcydata.Service ab = new fcydata.Service();
+
+            if (row["je"].ToString().Trim().IndexOf("-") > 0)
+            {
+                row["je"] = -(decimal)row["je"];
+                //MessageBox.Show(row["je"].ToString());
+                Dictionary<string, string> param = new Dictionary<string, string>();
+
+                DateTime date = (DateTime)row["rq"];
+                string strs = "{'iAmount':<je>,'cOutSysKey':'<dh>','oAgent':{'cCode':'<khbh>','cOutSysKey':'<khbh>'},'oSettlementWay':{'cErpCode':'<jsfs>'},'iPayMentStatusCode':2,'cRefundPayDirection': 'TOUDH','dPayFinishDate':'" + date.ToString("yyyy-MM-dd HH:mm:ss") + "','dReceiptDate':'" + date.ToString("yyyy-MM-dd HH:mm:ss") + "','remark':'<memo>'}";
+
+                for (int j = 0; j < row.Table.Columns.Count; j++)
+                {
+                    strs = strs.Replace("<" + row.Table.Columns[j].ColumnName + ">", row[j].ToString().Trim());
+                }
+                param.Add("refund", strs);
+                ret = FcyWeb.Post("/ws/Payments/saveRefund", param);
+                XmlDocument xmldoc = new XmlDocument();
+                xmldoc.LoadXml(ret);
+                //tool.exe.writefile(ret, "tkdup.txt");
+                if (fcydata.FcyXml.GetNodeVal(xmldoc.DocumentElement, "data") != "")
+                {
+                    MessageBox.Show(ret);
+                }
+
+                #region 参数
+                //"iAmount": 100,//金额*
+                //" cOutSysKey":001,//外部唯一标识*
+                //"cSalesOrgOutSysKey":"111",//销售组织  多组织必填
+                //"cSettlementOrgOutSysKey":"111",//财务组织  多组织必填
+                //" oAgent":{（至少一项）*
+                //" cOutSysKey":001//客户标识
+                //"cCode":001//客户编码
+                //}
+                //cRefundPayDirection: TOBANK(系统外资金账户)/ TOUDH(预付款账户)
+                //" oSettlementWay":{（至少一项）*
+                //" cOutSysKey":001//结算方式标识
+                //"cCode":001//结算方式编码
+                //}
+                //"iPayMentStatusCode":2/4  //退款单状态*
+                //}
+                //"dPayFinishDate":2017-01-01 00:00:00//支付时间
+                //"dReceiptDate":2017-01-01 00:00:00//到账时间
+                //"remark": 备注
+                //}
+                #endregion
+            }
+            else
+            {
+                Dictionary<string, string> param = new Dictionary<string, string>();
+
+                DateTime date = (DateTime)row["rq"];
+                string strs = "{'iAmount':<je>,'cOutSysKey':'<dh>','oAgent':{'cErpCode':'<khbh>'},'oSettlementWay':{'cErpCode':'<jsfs>'},'cVoucherType':'NORMAL','iPayMentStatusCode':2,'dPayFinishDate':'" + date.ToString("yyyy-MM-dd HH:mm:ss") + "','dReceiptDate':'" + date.ToString("yyyy-MM-dd HH:mm:ss") + "','remark':'<memo>'}";
+
+                for (int j = 0; j < row.Table.Columns.Count; j++)
+                {
+                    strs = strs.Replace("<" + row.Table.Columns[j].ColumnName + ">", row[j].ToString().Trim());
+                }
+                param.Add("payment", strs);
+
+                ret = FcyWeb.Post("/ws/Payments/savePayment", param);
+                XmlDocument xmldoc = new XmlDocument();
+                xmldoc.LoadXml(ret);
+                if (fcydata.FcyXml.GetNodeVal(xmldoc.DocumentElement, "data") != "")
+                {
+                    MessageBox.Show(ret);
+                }
+            }
+            return ret;
+        }
+
+        /// <summary>
         /// 删除U订货上的"发货通知单"(k3对应:应收单)
         /// </summary>
         /// <param name="cOutSysKey"></param>

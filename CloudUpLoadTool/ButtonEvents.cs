@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using Kingdee.BOS.Core.Bill.PlugIn;
 using Kingdee.BOS.Core.DynamicForm.PlugIn.Args;
 
@@ -33,10 +34,29 @@ namespace CloudUpLoadTool
                     case "AR":
                         resultMessage = UploadOrder(dhstr);
                         break;
+                    //收款退款单
+                    case "SK":
+                        resultMessage = SkUpload(dhstr);
+                        break;
                 }
                 //输出结果
                 View.ShowMessage(resultMessage);
             }
+        }
+
+        /// <summary>
+        /// 收款退款单上传使用（注:金额为正的就是上传至U订货的支付单  若为负的就是上传至U订货的退款单）
+        /// </summary>
+        /// <param name="dh"></param>
+        /// <returns></returns>
+        public static string SkUpload(string dh)
+        {
+            var ab = new fcydata.Service();
+            var sqlList=new SqlList();
+            var selstr = sqlList.Get_Sql(dh);
+            var data = ab.FDataSet(selstr);
+            return FcyUdhPosts.SKUpload(data.Tables[0].Rows[0]);
+
         }
 
         /// <summary>
